@@ -16,18 +16,19 @@ class ExcelUploadController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
-        ]);
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+    ]);
 
-        try {
-            Excel::import(new AttendeeImport, $request->file('file'));
-            return back()->with('success', 'Excel file imported successfully.');
-        } catch (\Exception $e) {
-            Log::error('Excel import failed: '.$e->getMessage());
-            return back()->withErrors(['file' => 'Import failed: '.$e->getMessage()]);
-        }
+    try {
+        $import = new AttendeeImport();
+        Excel::import($import, $request->file('file'));
+        
+        return back()->with('success', "Successfully imported {$import->getImportedRowCount()} attendees.");
+    } catch (\Exception $e) {
+        Log::error('Excel import failed: '.$e->getMessage());
+        return back()->withErrors(['file' => 'Import failed: '.$e->getMessage()]);
     }
 }
-
+}
